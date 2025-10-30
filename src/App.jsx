@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { eventsAPI, usersAPI, subscribeToEvents, authAPI } from './supabase.js';
+import { eventsAPI, usersAPI, subscribeToEvents, authAPI, auditAPI } from './supabase.js';
 import LoginPage from './components/LoginPage.jsx';
 import ChangePasswordModal from './components/ChangePasswordModal.jsx';
+import AuditLogHistory from './components/AuditLogHistory.jsx';
 
 const CAUCalendar = () => {
     const [currentUser, setCurrentUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [showChangePassword, setShowChangePassword] = useState(false);
+    const [showAuditLog, setShowAuditLog] = useState(false);
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [events, setEvents] = useState([]);
@@ -809,12 +811,38 @@ const CAUCalendar = () => {
         }
     };
 
-    const handleLoginSuccess = (user) => {
+    const handleLoginSuccess = async (user) => {
         setCurrentUser(user);
         setIsAuthenticated(true);
+
+        // Registrar login en auditoría
+        try {
+            await auditAPI.log({
+                userId: user.id,
+                userName: user.name,
+                actionType: 'LOGIN',
+                entityType: 'user',
+                description: `${user.name} ha iniciado sesión`
+            });
+        } catch (err) {
+            console.error('Error al registrar login:', err);
+        }
     };
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        // Registrar logout en auditoría
+        try {
+            await auditAPI.log({
+                userId: currentUser.id,
+                userName: currentUser.name,
+                actionType: 'LOGOUT',
+                entityType: 'user',
+                description: `${currentUser.name} ha cerrado sesión`
+            });
+        } catch (err) {
+            console.error('Error al registrar logout:', err);
+        }
+
         authAPI.logout();
         setCurrentUser(null);
         setIsAuthenticated(false);
@@ -978,6 +1006,12 @@ const CAUCalendar = () => {
                     }, "Dashboard"),
 
                     React.createElement('button', {
+                        onClick: () => setShowAuditLog(true),
+                        className: "btn btn-secondary",
+                        style: { background: '#8b5cf6', color: 'white', borderColor: '#8b5cf6' }
+                    }, "📋 Historial"),
+
+                    React.createElement('button', {
                         onClick: exportData,
                         className: "btn btn-success"
                     }, "Exportar"),
@@ -1064,6 +1098,11 @@ const CAUCalendar = () => {
             user: currentUser,
             onClose: () => setShowChangePassword(false),
             onSuccess: handleChangePasswordSuccess
+        }),
+
+        showAuditLog && React.createElement(AuditLogHistory, {
+            currentUser: currentUser,
+            onClose: () => setShowAuditLog(false)
         }),
 
         showModal && React.createElement('div', { className: "modal" },

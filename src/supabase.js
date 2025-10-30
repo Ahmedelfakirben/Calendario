@@ -292,3 +292,119 @@ export const authAPI = {
     localStorage.removeItem('currentUser');
   }
 };
+
+// Funciones de API para auditoría
+export const auditAPI = {
+  // Obtener todos los registros de auditoría
+  async getAll(limit = 100) {
+    const { data, error } = await supabase
+      .from('audit_logs_view')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Obtener registros por usuario
+  async getByUser(userName, limit = 100) {
+    const { data, error } = await supabase
+      .from('audit_logs_view')
+      .select('*')
+      .eq('user_name', userName)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Obtener registros por tipo de acción
+  async getByActionType(actionType, limit = 100) {
+    const { data, error } = await supabase
+      .from('audit_logs_view')
+      .select('*')
+      .eq('action_type', actionType)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Obtener registros por rango de fechas
+  async getByDateRange(startDate, endDate, limit = 100) {
+    const { data, error } = await supabase
+      .from('audit_logs_view')
+      .select('*')
+      .gte('created_at', startDate)
+      .lte('created_at', endDate)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Registrar acción manual (login, logout, etc.)
+  async log(logData) {
+    const { data, error } = await supabase
+      .from('audit_logs')
+      .insert([{
+        user_id: logData.userId,
+        user_name: logData.userName,
+        action_type: logData.actionType,
+        entity_type: logData.entityType || 'user',
+        entity_id: logData.entityId || null,
+        description: logData.description,
+        old_values: logData.oldValues || null,
+        new_values: logData.newValues || null
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Obtener estadísticas de auditoría
+  async getStats() {
+    const { data, error } = await supabase
+      .from('audit_logs')
+      .select('user_name, action_type');
+
+    if (error) throw error;
+
+    // Agrupar estadísticas
+    const stats = {};
+    data.forEach(log => {
+      if (!stats[log.user_name]) {
+        stats[log.user_name] = {
+          total: 0,
+          CREATE: 0,
+          UPDATE: 0,
+          DELETE: 0,
+          LOGIN: 0,
+          LOGOUT: 0,
+          PASSWORD_CHANGE: 0
+        };
+      }
+      stats[log.user_name].total++;
+      stats[log.user_name][log.action_type]++;
+    });
+
+    return stats;
+  }
+};
+
+// Suscribirse a cambios en audit logs
+export const subscribeToAuditLogs = (callback) => {
+  return supabase
+    .channel('audit_logs_changes')
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'audit_logs' },
+      callback
+    )
+    .subscribe();
+};
