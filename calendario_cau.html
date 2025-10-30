@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario del CAU SES-SGS - Version Mejorada</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f9fafb;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .header {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            color: white;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: #dbeafe;
+        }
+        
+        .header .firma {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #bfdbfe;
+        }
+        
+        .firma strong {
+            font-weight: 600;
+        }
+        
+        .main-content {
+            padding: 1.5rem;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .view-tabs {
+            display: flex;
+            background: white;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            overflow: hidden;
+        }
+        
+        .view-tab {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-right: 1px solid #d1d5db;
+        }
+        
+        .view-tab:last-child {
+            border-right: none;
+        }
+        
+        .view-tab.active {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .view-tab:hover:not(.active) {
+            background: #f9fafb;
+        }
+        
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .btn-nav {
+            background: white;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 0.5rem;
+        }
+        
+        .btn-nav:hover {
+            background: #f9fafb;
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        
+        .btn-success {
+            background: #059669;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #047857;
+        }
+        
+        .btn-warning {
+            background: #d97706;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #b45309;
+        }
+        
+        .btn-secondary {
+            background: white;
+            border: 1px solid #d1d5db;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+        
+		.month-title {
+			font-size: 1.5rem;
+			font-weight: 600;
+			color: #1f2937;
+			min-width: 150px; /* Nuevo: Mantiene un ancho fijo para el t´tulo del mes */
+			text-align: center; /* Nuevo: Centra el texto */
+		}
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .filters-panel {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .filters-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .filters-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .filters-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        .filter-section h4 {
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 10rem;
+            overflow-y: auto;
+        }
+        
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .color-indicator {
+            width: 0.75rem;
+            height: 0.75rem;
+            border-radius: 0.125rem;
+        }
+        
+        .color-vacaciones {
+            background: #3b82f6;
+        }
+        
+        .color-guardias {
+            background: #10b981;
+        }
+        
+        .color-visitas {
+            background: #f59e0b;
+        }
+        
+        .color-reuniones {
+            background: #8b5cf6;
+        }
+        
+        .color-jornada {
+            background: #a855f7;
+        }
+        
+        .color-ofi {
+            background: #ef4444;
+        }
+        
+        .color-compras {
+            background: #6366f1; /* Nuevo: Color para compras */
+        }
+        
+        .color-manuales {
+            background: #0ea5e9; /* Nuevo: Color para manuales */
+        }
+        
+        .calendar-container {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            background: #f3f4f6;
+        }
+        
+        .day-header {
+            padding: 1rem;
+            text-align: center;
+            font-weight: 500;
+            color: #374151;
+            border-right: 1px solid #e5e7eb;
+        }
+        
+        .day-header:last-child {
+            border-right: none;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+        
+        .calendar-day {
+            min-height: 8rem;
+            padding: 0.5rem;
+            border-right: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .calendar-day:last-child {
+            border-right: none;
+        }
+        
+        .calendar-day:hover {
+            background: #f9fafb;
+        }
+        
+        .calendar-day.empty {
+            background: #f9fafb;
+            cursor: default;
+        }
+        
+        .calendar-day.today {
+            background: #eff6ff;
+        }
+        
+        .day-number {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .day-number.today {
+            color: #2563eb;
+        }
+        
+        .events-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .event-item {
+            font-size: 0.75rem;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+            position: relative;
+            border-left: 2px solid;
+        }
+        
+        .event-item.vacaciones {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+        
+        .event-item.guardias {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .event-item.visitas {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+        
+        .event-item.reuniones {
+            background: #ede9fe;
+            border-color: #8b5cf6;
+        }
+        
+        .event-item.jornada {
+            background: #f3e8ff;
+            border-color: #a855f7;
+            color: #7c3aed;
+        }
+        
+        .event-item.ofi {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .event-item.compras {
+            background: #e0e7ff; /* Nuevo: Color de fondo para compras */
+            border-color: #6366f1; /* Nuevo: Color de borde para compras */
+        }
+        
+        .event-item.manuales {
+            background: #e0f2fe; /* Nuevo: Color de fondo para manuales */
+            border-color: #0ea5e9; /* Nuevo: Color de borde para manuales */
+        }
+        
+        .event-title {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .event-user {
+            color: #6b7280;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .event-time {
+            color: #6b7280;
+            font-size: 0.7rem;
+        }
+        
+        .event-actions {
+            position: absolute;
+            top: -0.25rem;
+            right: -0.25rem;
+            background: white;
+            border-radius: 0.25rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 0.25rem;
+            display: flex;
+            gap: 0.25rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .event-item:hover .event-actions {
+            opacity: 1;
+        }
+        
+        .action-btn {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 0.125rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+        
+        .action-btn:hover {
+            background: #f3f4f6;
+        }
+        
+        .year-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .month-card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .month-card-header {
+            background: #f3f4f6;
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .mini-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e5e7eb;
+        }
+        
+        .mini-day {
+            background: white;
+            padding: 0.25rem;
+            text-align: center;
+            font-size: 0.75rem;
+            min-height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .mini-day.has-events {
+            background: #dbeafe;
+        }
+        
+        .mini-day.today {
+            background: #2563eb;
+            color: white;
+        }
+        
+        .day-view {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 1px;
+            background: #e5e7eb;
+        }
+        
+        .hour-label {
+            background: #f3f4f6;
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hour-slot {
+            background: white;
+            padding: 0.25rem;
+            min-height: 3rem;
+            position: relative;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .hour-slot:hover {
+            background: #f9fafb;
+        }
+        
+        .hour-event {
+            background: #dbeafe;
+            border-left: 3px solid #3b82f6;
+            padding: 0.25rem;
+            margin: 0.125rem 0;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+        }
+        
+        .hour-event.guardias {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .hour-event.visitas {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+        
+        .hour-event.reuniones {
+            background: #ede9fe;
+            border-color: #8b5cf6;
+        }
+        
+        .hour-event.jornada {
+            background: #f3e8ff;
+            border-color: #a855f7;
+            color: #7c3aed;
+        }
+        
+        .hour-event.ofi {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .hour-event.compras {
+            background: #e0e7ff;
+            border-color: #6366f1;
+        }
+        
+        .hour-event.manuales {
+            background: #e0f2fe;
+            border-color: #0ea5e9;
+        }
+        
+        .stats-section {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .user-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #1f2937;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        .stat-number.vacaciones {
+            color: #3b82f6;
+        }
+        
+        .stat-number.guardias {
+            color: #10b981;
+        }
+        
+        .stat-number.visitas {
+            color: #f59e0b;
+        }
+        
+        .stat-number.reuniones {
+            color: #8b5cf6;
+        }
+        
+        .stat-number.jornada {
+            color: #a855f7;
+        }
+        
+        .stat-number.ofi {
+            color: #ef4444;
+        }
+        
+        .stat-number.compras {
+            color: #6366f1;
+        }
+        
+        .stat-number.manuales {
+            color: #0ea5e9;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 50;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 32rem;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .form-grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-full {
+            flex: 1;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .link-btn {
+            color: #2563eb;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+        
+        .link-btn:hover {
+            color: #1d4ed8;
+        }
+        
+        .dashboard-toggle {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .dashboard-toggle.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        
+        .dashboard-toggle:hover:not(.active) {
+            background: #f9fafb;
+        }
+        
+        .export-note {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #92400e;
+        }
+
+        /* Destacar mejor los eventos de jornada en la vista mensual */
+        .event-item.jornada .event-title {
+            color: #7c3aed;
+            font-weight: 600;
+        }
+
+        /* Mejorar visibilidad en mini calendario */
+        .mini-day.has-jornada {
+            background: #f3e8ff;
+            border: 1px solid #a855f7;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script>
+        const { useState, useEffect, createElement } = React;
+
+        const CAUCalendar = () => {
+            const [currentDate, setCurrentDate] = useState(new Date());
+            const [selectedDate, setSelectedDate] = useState(new Date());
+            const [events, setEvents] = useState([]);
+            const [currentView, setCurrentView] = useState('monthly');
+            const [showModal, setShowModal] = useState(false);
+            const [editingEvent, setEditingEvent] = useState(null);
+            const [showDashboard, setShowDashboard] = useState(false);
+            const [showExportNote, setShowExportNote] = useState(false);
+            const [filters, setFilters] = useState({
+                vacaciones: true,
+                guardias: true,
+                visitas: true,
+                reuniones: true,
+                jornada: true,
+                ofi: true,
+                compras: true, // Nuevo: filtro para compras
+                manuales: true, // Nuevo: filtro para manuales
+                users: []
+            });
+            const [showFilters, setShowFilters] = useState(false);
+
+            const users = [
+                "Ahmed El Fakir",
+                "Luis Miguel Fernandez Nunez", 
+                "Borja Lopez Vila",
+                "Sergio Crespo Sabrido",
+                "Armando Vergara Verd",
+                "Alvaro Oliver Morgado",
+                "Santiago Diaz Barbara"
+            ];
+
+            const eventTypes = {
+                vacaciones: { label: 'Vacaciones', color: 'vacaciones', code: 'V' },
+                guardias: { label: 'Guardias', color: 'guardias', code: 'G' },
+                visitas: { label: 'Visitas Medicas', color: 'visitas', code: 'VM' },
+                reuniones: { label: 'Reuniones', color: 'reuniones', code: 'R' },
+                jornada: { label: 'Jornada 18:30', color: 'jornada', code: 'J-18:30' },
+                ofi: { label: 'Ofi', color: 'ofi', code: 'OFI' },
+                compras: { label: 'Compras', color: 'compras', code: 'C' }, // Nuevo
+                manuales: { label: 'Manuales', color: 'manuales', code: 'M' } // Nuevo
+            };
+
+            const [newEvent, setNewEvent] = useState({
+                title: '',
+                type: 'vacaciones',
+                user: '',
+                startDate: '',
+                endDate: '',
+                startTime: '',
+                endTime: '',
+                description: '',
+                repetitionFrequency: '',
+                repetitionInterval: 1, 
+                repetitionWeekdays: [],
+                exceptions: []
+            });
+
+            const generateHours = () => {
+                const hours = [];
+                for (let i = 8; i <= 18; i++) {
+                    hours.push(`${i}:00`);
+                    if (i < 18) hours.push(`${i}:30`);
+                }
+                return hours;
+            };
+
+            const hours = generateHours();
+
+            // Cargar datos del localStorage al iniciar
+            useEffect(() => {
+                const savedEvents = localStorage.getItem('cau-calendar-events-v3');
+                const savedFilters = localStorage.getItem('cau-calendar-filters-v3');
+                
+                if (savedEvents) {
+                    try {
+                        const parsedEvents = JSON.parse(savedEvents);
+                        console.log('Eventos cargados:', parsedEvents);
+                        setEvents(parsedEvents);
+                    } catch (error) {
+                        console.error('Error cargando eventos:', error);
+                    }
+                }
+                
+                if (savedFilters) {
+                    try {
+                        const loadedFilters = JSON.parse(savedFilters);
+                        if (!loadedFilters.hasOwnProperty('ofi')) {
+                            loadedFilters.ofi = true;
+                        }
+                        if (!loadedFilters.hasOwnProperty('jornada')) {
+                            loadedFilters.jornada = true;
+                        }
+                        if (!loadedFilters.hasOwnProperty('compras')) {
+                            loadedFilters.compras = true;
+                        }
+                        if (!loadedFilters.hasOwnProperty('manuales')) {
+                            loadedFilters.manuales = true;
+                        }
+                        setFilters(loadedFilters);
+                    } catch (error) {
+                        console.error('Error cargando filtros:', error);
+                    }
+                }
+            }, []);
+
+            // Guardar eventos cuando cambien
+            useEffect(() => {
+                localStorage.setItem('cau-calendar-events-v3', JSON.stringify(events));
+                console.log('Eventos guardados:', events);
+            }, [events]);
+
+            // Guardar filtros cuando cambien
+            useEffect(() => {
+                localStorage.setItem('cau-calendar-filters-v3', JSON.stringify(filters));
+            }, [filters]);
+
+            const months = [
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+            ];
+
+            // Días de la semana, de Lunes a Domingo
+            const weekDays = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
+
+            const getDaysInMonth = (date) => {
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+
+                // 0 = Domingo, 1 = Lunes, etc.
+                const startingDayOfWeek = firstDay.getDay();
+
+                // Ajuste para que la semana empiece en Lunes (1) en lugar de Domingo (0)
+                const adjustedStartingDay = startingDayOfWeek === 0 ? 6 : startingDayOfWeek - 1;
+
+                const days = [];
+                
+                for (let i = 0; i < adjustedStartingDay; i++) {
+                    days.push(null);
+                }
+                
+                for (let i = 1; i <= daysInMonth; i++) {
+                    days.push(new Date(year, month, i));
+                }
+                
+                return days;
+            };
+
+            const getEventsForDate = (date) => {
+                if (!date) return [];
+                
+                const filteredEvents = events.filter(event => {
+                    const eventStart = new Date(event.startDate);
+                    const eventEnd = new Date(event.endDate);
+                    const checkDate = new Date(date);
+                    
+                    eventStart.setHours(0, 0, 0, 0);
+                    eventEnd.setHours(0, 0, 0, 0);
+                    checkDate.setHours(0, 0, 0, 0);
+                    
+                    const isInDateRange = checkDate >= eventStart && checkDate <= eventEnd;
+                    if (!isInDateRange) return false;
+
+                    const isException = Array.isArray(event.exceptions) && event.exceptions.includes(checkDate.toISOString().split('T')[0]);
+                    if (isException) return false;
+
+                    if (!event.repetitionFrequency) {
+                        return true;
+                    }
+
+                    if (event.repetitionFrequency === 'daily') {
+                        return true;
+                    }
+
+                    if (event.repetitionFrequency === 'weekly') {
+                        if (!Array.isArray(event.repetitionWeekdays) || event.repetitionWeekdays.length === 0) return false;
+                        const dayIndex = checkDate.getDay();
+                        // Ajuste del índice del día de la semana
+                        const adjustedDayIndex = dayIndex === 0 ? 6 : dayIndex - 1; 
+                        return event.repetitionWeekdays.includes(adjustedDayIndex);
+                    }
+
+                    if (event.repetitionFrequency === 'everyXWeeks') {
+                        if (!Array.isArray(event.repetitionWeekdays) || event.repetitionWeekdays.length === 0) return false;
+                        const eventStartDay = new Date(event.startDate);
+                        eventStartDay.setHours(0,0,0,0);
+                        const daysSinceStart = Math.floor((checkDate - eventStartDay) / (1000 * 60 * 60 * 24));
+                        if (daysSinceStart < 0) return false;
+                        const weeksSinceStart = Math.floor(daysSinceStart / 7);
+                        const interval = (event.repetitionInterval && event.repetitionInterval > 0) ? event.repetitionInterval : 1;
+                        const isRepetitionWeek = (weeksSinceStart % interval === 0);
+                        const dayIndex = checkDate.getDay();
+                        // Ajuste del índice del día de la semana
+                        const adjustedDayIndex = dayIndex === 0 ? 6 : dayIndex - 1;
+                        return isRepetitionWeek && event.repetitionWeekdays.includes(adjustedDayIndex);
+                    }
+                    return false;
+                }).filter(event => {
+                    const typeFilter = filters.hasOwnProperty(event.type) ? filters[event.type] : true;
+                    const userFilter = filters.users.length === 0 || filters.users.includes(event.user);
+                    
+                    const shouldShow = typeFilter && userFilter;
+                    
+                    return shouldShow;
+                });
+                return filteredEvents;
+            };
+
+            const getEventsForHour = (date, hour) => {
+                const dayEvents = getEventsForDate(date);
+                return dayEvents.filter(event => {
+                    if (!event.startTime && !event.endTime) return false;
+                    
+                    const eventStartTime = event.startTime;
+                    const eventEndTime = event.endTime || event.startTime;
+                    
+                    const hourToMinutes = (timeStr) => {
+                        const [h, m] = timeStr.split(':').map(Number);
+                        return h * 60 + m;
+                    };
+                    
+                    const currentHourMinutes = hourToMinutes(hour);
+                    const startMinutes = hourToMinutes(eventStartTime);
+                    const endMinutes = hourToMinutes(eventEndTime);
+                    
+                    return currentHourMinutes >= startMinutes && currentHourMinutes < endMinutes + 30;
+                });
+            };
+
+            const getUserStats = (year = currentDate.getFullYear()) => {
+                const yearEvents = events.filter(event => {
+                    const eventDate = new Date(event.startDate);
+                    return eventDate.getFullYear() === year;
+                });
+
+                return users.map(user => {
+                    const userEvents = yearEvents.filter(event => event.user === user);
+                    
+                    const stats = {
+                        vacaciones: 0,
+                        guardias: 0,
+                        visitas: 0,
+                        reuniones: 0,
+                        jornada: 0,
+                        ofi: 0,
+                        compras: 0, // Nuevo: stats para compras
+                        manuales: 0 // Nuevo: stats para manuales
+                    };
+
+                    userEvents.forEach(event => {
+                        const startDate = new Date(event.startDate);
+                        const endDate = new Date(event.endDate);
+                        startDate.setHours(0,0,0,0);
+                        endDate.setHours(0,0,0,0);
+                        const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+                        
+                        if (event.type === 'visitas' || event.type === 'reuniones') {
+                            stats[event.type] += 1;
+                        } else if (stats.hasOwnProperty(event.type)) {
+                            if (!event.repetitionFrequency) {
+                                stats[event.type] += daysDiff;
+                            } else {
+                                if (event.repetitionFrequency === 'daily') {
+                                    stats[event.type] += daysDiff - (Array.isArray(event.exceptions) ? event.exceptions.length : 0);
+                                } else {
+                                    let repeatedDaysCount = 0;
+                                    let current = new Date(startDate);
+                                    while (current <= endDate) {
+                                        const isException = Array.isArray(event.exceptions) && event.exceptions.includes(current.toISOString().split('T')[0]);
+                                        if (isException) {
+                                            current.setDate(current.getDate() + 1);
+                                            continue;
+                                        }
+
+                                        const dayIndex = current.getDay();
+                                        const adjustedDayIndex = dayIndex === 0 ? 6 : dayIndex - 1;
+                                        const dayMatches = Array.isArray(event.repetitionWeekdays) && event.repetitionWeekdays.includes(adjustedDayIndex);
+                                        const isEveryXWeeks = event.repetitionFrequency === 'everyXWeeks';
+                                        const eventStartDay = new Date(event.startDate);
+                                        eventStartDay.setHours(0,0,0,0);
+                                        const daysSinceStart = Math.floor((current - eventStartDay) / (1000 * 60 * 60 * 24));
+                                        const weeksSinceStart = Math.floor(daysSinceStart / 7);
+                                        const interval = (event.repetitionInterval && event.repetitionInterval > 0) ? event.repetitionInterval : 1;
+                                        const isRepetitionWeek = isEveryXWeeks ? (weeksSinceStart % interval === 0) : true;
+                                        
+                                        if (dayMatches && (!isEveryXWeeks || isRepetitionWeek)) {
+                                            repeatedDaysCount++;
+                                        }
+                                        current.setDate(current.getDate() + 1);
+                                    }
+                                    stats[event.type] += repeatedDaysCount;
+                                }
+                            }
+                        }
+                    });
+
+                    return {
+                        name: user,
+                        ...stats,
+                        total: stats.vacaciones + stats.guardias + stats.visitas + stats.reuniones + stats.jornada + stats.ofi + stats.compras + stats.manuales
+                    };
+                });
+            };
+
+            const handlePrevMonth = () => {
+                if (currentView === 'yearly') {
+                    setCurrentDate(new Date(currentDate.getFullYear() - 1, currentDate.getMonth()));
+                } else {
+                    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1));
+                }
+            };
+
+            const handleNextMonth = () => {
+                if (currentView === 'yearly') {
+                    setCurrentDate(new Date(currentDate.getFullYear() + 1, currentDate.getMonth()));
+                } else {
+                    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1));
+                }
+            };
+
+            const handleDayClick = (date) => {
+                if (!date) return;
+                setSelectedDate(date);
+                setCurrentView('daily');
+            };
+
+            const handleAddEvent = (date = null, hour = null) => {
+                setEditingEvent(null);
+                const eventDate = date || selectedDate || currentDate;
+                const dateStr = eventDate.toISOString().split('T')[0];
+                
+                let defaultStartTime = hour || '';
+                let defaultEndTime = hour || '';
+                
+                if (hour && hour === '18:30') {
+                    defaultStartTime = '18:30';
+                    defaultEndTime = '19:00';
+                }
+                
+                setNewEvent({
+                    title: '',
+                    type: 'vacaciones',
+                    user: '',
+                    startDate: dateStr,
+                    endDate: dateStr,
+                    startTime: defaultStartTime,
+                    endTime: defaultEndTime,
+                    description: '',
+                    repetitionFrequency: '',
+                    repetitionInterval: 1, 
+                    repetitionWeekdays: [],
+                    exceptions: []
+                });
+                setShowModal(true);
+            };
+
+            const handleEditEvent = (event) => {
+                setEditingEvent(event);
+                setNewEvent({ 
+                    ...event, 
+                    repetitionFrequency: event.repetitionFrequency || '',
+                    repetitionInterval: event.repetitionInterval || 1, 
+                    repetitionWeekdays: event.repetitionWeekdays || [],
+                    exceptions: event.exceptions || []
+                });
+                setShowModal(true);
+            };
+
+            const handleDeleteEvent = (eventToDelete, eventDate) => {
+                if (eventToDelete.repetitionFrequency) {
+                    const response = prompt('Este es un evento recurrente. ¿Deseas eliminar solo este evento (S) o toda la serie (T)? Escribe \'S\' o \'T\'.');
+                    if (response && (response.toUpperCase() === 'S' || response.toUpperCase() === 'T')) {
+                        if (response.toUpperCase() === 'T') {
+                             setEvents(events.filter(event => event.id !== eventToDelete.id));
+                        } else if (response.toUpperCase() === 'S') {
+                            const dateToDelete = eventDate.toISOString().split('T')[0];
+                            setEvents(prevEvents => 
+                                prevEvents.map(event => {
+                                    if (event.id === eventToDelete.id) {
+                                        const newExceptions = Array.isArray(event.exceptions) ? [...event.exceptions, dateToDelete] : [dateToDelete];
+                                        return { ...event, exceptions: newExceptions };
+                                    }
+                                    return event;
+                                })
+                            );
+                        }
+                    } else {
+                         alert('Opción no valida. Por favor, escribe \'S\' o \'T\'.');
+                    }
+                } else {
+                    const confirmed = window.confirm('¿Estás seguro de que quieres eliminar este evento?');
+                    if (confirmed) {
+                        setEvents(events.filter(event => event.id !== eventToDelete.id));
+                    }
+                }
+            };
+
+            const handleSaveEvent = () => {
+                if (!newEvent.user || !newEvent.startDate || !newEvent.endDate) {
+                    alert('Por favor, completa los campos obligatorios: Tipo, Usuario, Fecha de inicio y Fecha de fin.');
+                    return;
+                }
+
+                if (new Date(newEvent.startDate) > new Date(newEvent.endDate)) {
+                    alert('La fecha de inicio no puede ser posterior a la fecha de fin');
+                    return;
+                }
+
+                if ((newEvent.type === 'visitas' || newEvent.type === 'reuniones' || newEvent.type === 'guardias' || newEvent.type === 'jornada' || newEvent.type === 'ofi' || newEvent.type === 'compras' || newEvent.type === 'manuales') && newEvent.startTime && newEvent.endTime) {
+                    if (newEvent.startTime >= newEvent.endTime) {
+                        alert('La hora de inicio debe ser anterior a la hora de fin');
+                        return;
+                    }
+                }
+                
+                if (newEvent.repetitionFrequency === 'everyXWeeks' && (newEvent.repetitionInterval < 1 || isNaN(newEvent.repetitionInterval))) {
+                    alert('El intervalo de repetición debe ser un número mayor que 0.');
+                    return;
+                }
+
+                if ((newEvent.repetitionFrequency === 'weekly' || newEvent.repetitionFrequency === 'everyXWeeks') &&
+                    (!Array.isArray(newEvent.repetitionWeekdays) || newEvent.repetitionWeekdays.length === 0)) {
+                    alert('Por favor selecciona al menos un día de la semana para la repetición semanal.');
+                    return;
+                }
+                
+                const eventTypeLabel = eventTypes[newEvent.type]?.label || newEvent.type;
+                const eventData = {
+                    ...newEvent,
+                    title: eventTypeLabel, 
+                    id: editingEvent ? editingEvent.id : Date.now(),
+                    exceptions: newEvent.exceptions || []
+                };
+
+                console.log('Guardando evento:', eventData);
+
+                if (editingEvent) {
+                    setEvents(events.map(event => event.id === editingEvent.id ? eventData : event));
+                } else {
+                    setEvents([...events, eventData]);
+                }
+
+                setShowModal(false);
+            };
+            
+            const handleRepetitionWeekdayToggle = (dayIndex) => {
+                setNewEvent(prev => {
+                    const newWeekdays = prev.repetitionWeekdays.includes(dayIndex)
+                        ? prev.repetitionWeekdays.filter(d => d !== dayIndex)
+                        : [...prev.repetitionWeekdays, dayIndex];
+                    
+                    return { ...prev, repetitionWeekdays: newWeekdays };
+                });
+            };
+
+            const handleUserFilterToggle = (user) => {
+                setFilters(prev => ({
+                    ...prev,
+                    users: prev.users.includes(user) 
+                        ? prev.users.filter(u => u !== user)
+                        : [...prev.users, user]
+                }));
+            };
+
+            const clearAllFilters = () => {
+                setFilters({
+                    vacaciones: true,
+                    guardias: true,
+                    visitas: true,
+                    reuniones: true,
+                    jornada: true,
+                    ofi: true,
+                    compras: true,
+                    manuales: true,
+                    users: []
+                });
+            };
+
+            const exportData = () => {
+                const data = {
+                    events: events,
+                    filters: filters,
+                    exportDate: new Date().toISOString(),
+                    version: '3.1'
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `calendario-cau-v3-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                setShowExportNote(true);
+                setTimeout(() => setShowExportNote(false), 5000);
+            };
+
+            const importData = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.events) {
+                            setEvents(data.events);
+                        }
+                        if (data.filters) {
+                            setFilters(data.filters);
+                        }
+                        alert('Datos importados correctamente');
+                    } catch (error) {
+                        alert('Error al importar el archivo: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+            };
+
+            const renderMonthlyView = () => {
+                const days = getDaysInMonth(currentDate);
+
+                return createElement('div', { className: "calendar-container" },
+                    createElement('div', { className: "calendar-header" },
+                        weekDays.map(day =>
+                            createElement('div', { 
+                                key: day, 
+                                className: "day-header"
+                            }, day)
+                        )
+                    ),
+
+                    createElement('div', { className: "calendar-grid" },
+                        days.map((day, index) => {
+                            const dayEvents = getEventsForDate(day);
+                            const isToday = day && day.toDateString() === new Date().toDateString();
+                            
+                            return createElement('div', {
+                                key: index,
+                                className: `calendar-day ${!day ? 'empty' : ''} ${isToday ? 'today' : ''}`,
+                                onClick: () => day && handleDayClick(day)
+                            },
+                                day && [
+                                    createElement('div', { 
+                                        key: 'date',
+                                        className: `day-number ${isToday ? 'today' : ''}` 
+                                    }, day.getDate()),
+                                    
+                                    createElement('div', { key: 'events', className: "events-container" },
+                                        dayEvents.map(event =>
+                                            createElement('div', {
+                                                key: event.id,
+                                                className: `event-item ${event.type}`
+                                            },
+                                                createElement('div', { className: "event-title" }, 
+                                                    `${eventTypes[event.type] ? eventTypes[event.type].code : event.type.toUpperCase()}`
+                                                ),
+                                                createElement('div', { className: "event-user" }, event.user),
+                                                event.startTime && createElement('div', { className: "event-time" }, 
+                                                    `${event.startTime}${event.endTime ? ' - ' + event.endTime : ''}`
+                                                ),
+                                                
+                                                createElement('div', { className: "event-actions" },
+                                                    createElement('button', {
+                                                        onClick: (e) => {
+                                                            e.stopPropagation();
+                                                            handleEditEvent(event);
+                                                        },
+                                                        className: "action-btn",
+                                                        title: "Editar"
+                                                    }, "E"),
+                                                    
+                                                    createElement('button', {
+                                                        onClick: (e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteEvent(event, day);
+                                                        },
+                                                        className: "action-btn",
+                                                        title: "X"
+                                                    }, "X")
+                                                )
+                                            )
+                                        )
+                                    )
+                                ]
+                            );
+                        })
+                    )
+                );
+            };
+
+            const renderYearlyView = () => {
+                const year = currentDate.getFullYear();
+                const monthsData = [];
+
+                for (let i = 0; i < 12; i++) {
+                    const monthDate = new Date(year, i, 1);
+                    const days = getDaysInMonth(monthDate);
+                    monthsData.push({ monthDate, days });
+                }
+
+                return createElement('div', { className: "year-view" },
+                    monthsData.map(({ monthDate, days }, monthIndex) =>
+                        createElement('div', { key: monthIndex, className: "month-card" },
+                            createElement('div', { className: "month-card-header" },
+                                months[monthIndex]
+                            ),
+                            createElement('div', { className: "mini-calendar" },
+                                weekDays.map(day =>
+                                    createElement('div', { 
+                                        key: day, 
+                                        className: "mini-day",
+                                        style: { fontSize: '0.6rem', fontWeight: 'bold' }
+                                    }, day.charAt(0))
+                                ),
+                                days.map((day, dayIndex) => {
+                                    if (!day) return createElement('div', { key: dayIndex, className: "mini-day" });
+                                    
+                                    const dayEvents = getEventsForDate(day);
+                                    const isToday = day.toDateString() === new Date().toDateString();
+                                    const hasEvents = dayEvents.length > 0;
+                                    const hasJornada = dayEvents.some(event => event.type === 'jornada');
+                                    
+                                    return createElement('div', {
+                                        key: dayIndex,
+                                        className: `mini-day ${hasEvents ? 'has-events' : ''} ${hasJornada ? 'has-jornada' : ''} ${isToday ? 'today' : ''}`,
+                                        onClick: () => handleDayClick(day),
+                                        title: hasEvents ? `${dayEvents.length} evento(s)` : ''
+                                    }, day.getDate());
+                                })
+                            )
+                        )
+                    )
+                );
+            };
+
+            const renderDailyView = () => {
+                const dateStr = selectedDate.toLocaleDateString('es-ES', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                return createElement('div', {},
+                    createElement('div', { 
+                        style: { 
+                            marginBottom: '1rem', 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center' 
+                        } 
+                    },
+                        createElement('h3', { style: { textTransform: 'capitalize' } }, dateStr),
+                        createElement('button', {
+                            onClick: () => handleAddEvent(selectedDate),
+                            className: "btn btn-primary"
+                        }, "Nuevo Evento")
+                    ),
+                    
+                    createElement('div', { className: "calendar-container" },
+                        createElement('div', { className: "day-view" },
+                            hours.map(hour => [
+                                createElement('div', { 
+                                    key: `label-${hour}`, 
+                                    className: "hour-label" 
+                                }, hour),
+                                createElement('div', { 
+                                    key: `slot-${hour}`, 
+                                    className: "hour-slot",
+                                    onClick: () => handleAddEvent(selectedDate, hour)
+                                },
+                                    getEventsForHour(selectedDate, hour).map(event =>
+                                        createElement('div', {
+                                            key: event.id,
+                                            className: `hour-event ${event.type}`
+                                        },
+                                            createElement('div', { style: { fontWeight: 'bold' } }, 
+                                                `${eventTypes[event.type] ? eventTypes[event.type].code : event.type.toUpperCase()}`
+                                            ),
+                                            createElement('div', {}, event.user),
+                                            event.startTime && createElement('div', { style: { fontSize: '0.7rem' } },
+                                                `${event.startTime}${event.endTime ? ' - ' + event.endTime : ''}`
+                                            )
+                                        )
+                                    )
+                                )
+                            ])
+                        )
+                    )
+                );
+            };
+
+            const renderDashboard = () => {
+                const userStats = getUserStats();
+                const totalStats = userStats.reduce((acc, user) => ({
+                    vacaciones: acc.vacaciones + user.vacaciones,
+                    guardias: acc.guardias + user.guardias,
+                    visitas: acc.visitas + user.visitas,
+                    reuniones: acc.reuniones + user.reuniones,
+                    jornada: acc.jornada + user.jornada,
+                    ofi: acc.ofi + user.ofi,
+                    compras: acc.compras + user.compras,
+                    manuales: acc.manuales + user.manuales
+                }), { vacaciones: 0, guardias: 0, visitas: 0, reuniones: 0, jornada: 0, ofi: 0, compras: 0, manuales: 0 });
+
+                return createElement('div', { className: "stats-section" },
+                    createElement('div', { className: "stats-header" },
+                        createElement('h3', { className: "stats-title" }, 
+                            `Dashboard - Año ${currentDate.getFullYear()}`
+                        ),
+                        createElement('div', { style: { display: 'flex', gap: '1rem', alignItems: 'center' } },
+                            createElement('div', { style: { fontSize: '0.875rem', color: '#6b7280' } },
+                                `Total: ${totalStats.vacaciones} vac. | ${totalStats.guardias} guard. | ${totalStats.visitas} visit. | ${totalStats.reuniones} reun. | ${totalStats.jornada} jorn. | ${totalStats.ofi} ofi | ${totalStats.compras} compras | ${totalStats.manuales} manuales`
+                            )
+                        )
+                    ),
+                    
+                    createElement('div', { className: "user-stats" },
+                        userStats.map(user =>
+                            createElement('div', { key: user.name, className: "user-card" },
+                                createElement('div', { className: "user-name" }, user.name),
+                                createElement('div', { className: "stat-grid" },
+                                    createElement('div', { className: "stat-item" },
+                                        createElement('div', { className: "stat-number vacaciones" }, user.vacaciones),
+                                        createElement('div', { className: "stat-label" }, "Vacaciones")
+                                    ),
+                                    createElement('div', { className: "stat-item" },
+                                        createElement('div', { className: "stat-number guardias" }, user.guardias),
+                                        createElement('div', { className: "stat-label" }, "Guardias")
+                                    ),
+                                    createElement('div', { className: "stat-item" },
+                                        createElement('div', { className: "stat-number visitas" }, user.visitas),
+                                        createElement('div', { className: "stat-label" }, "Visitas Médicas")
+                                    ),
+                                    createElement('div', { className: "stat-item" },
+                                        createElement('div', { className: "stat-number reuniones" }, user.reuniones),
+                                        createElement('div', { className: "stat-label" }, "Reuniones")
+                                    ),
+                                    createElement('div', { className: "stat-item" },
+                                        createElement('div', { className: "stat-number jornada" }, user.jornada),
+                                        createElement('div', { className: "stat-label" }, "Jornadas 18:30")
+                                    ),
+                                    createElement('div', { className: "stat-item" },
+                                        createElement('div', { className: "stat-number ofi" }, user.ofi),
+                                        createElement('div', { className: "stat-label" }, "Ofi")
+                                    ),
+                                    createElement('div', { className: "stat-item" },
+                                        createElement('div', { className: "stat-number compras" }, user.compras),
+                                        createElement('div', { className: "stat-label" }, "Compras")
+                                    ),
+                                    createElement('div', { className: "stat-item" },
+                                        createElement('div', { className: "stat-number manuales" }, user.manuales),
+                                        createElement('div', { className: "stat-label" }, "Manuales")
+                                    )
+                                )
+                            )
+                        )
+                    )
+                );
+            };
+
+            const getViewTitle = () => {
+                switch (currentView) {
+                    case 'yearly':
+                        return currentDate.getFullYear().toString();
+                    case 'daily':
+                        return `${months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+                    default:
+                        return `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+                }
+            };
+
+            // Efecto para detectar cambios en jornada especificamente
+            useEffect(() => {
+                const jornadaEvents = events.filter(event => event.type === 'jornada');
+                if (jornadaEvents.length > 0) {
+                    console.log('Eventos de jornada detectados:', jornadaEvents);
+                }
+            }, [events]);
+
+            return createElement('div', {},
+                createElement('div', { className: "header" },
+                    createElement('div', { className: "container" },
+                        createElement('h1', {}, "Calendario del CAU SES-SGS"),
+                        createElement('p', {}, "Sistema de Gestión de Vacaciones, Guardias, Visitas Médicas y Reuniones"),
+                        createElement('div', { className: "firma" },
+                            "Firmado por ",
+                            createElement('strong', {}, "Satecgroup")
+                        )
+                    )
+                ),
+
+                createElement('div', { className: "container main-content" },
+                    createElement('div', { className: "controls" },
+                        createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '1rem' } },
+                            createElement('div', { className: "view-tabs" },
+                                createElement('button', {
+                                    onClick: () => setCurrentView('monthly'),
+                                    className: `view-tab ${currentView === 'monthly' ? 'active' : ''}`
+                                }, "Mensual"),
+                                createElement('button', {
+                                    onClick: () => setCurrentView('yearly'),
+                                    className: `view-tab ${currentView === 'yearly' ? 'active' : ''}`
+                                }, "Anual"),
+                                createElement('button', {
+                                    onClick: () => setCurrentView('daily'),
+                                    className: `view-tab ${currentView === 'daily' ? 'active' : ''}`
+                                }, "Diario")
+                            ),
+
+                            currentView !== 'daily' && createElement('div', { className: "month-nav" },
+                                createElement('button', {
+                                    onClick: handlePrevMonth,
+                                    className: "btn btn-nav"
+                                }, "<"),
+                                
+                                createElement('h2', { className: "month-title" }, getViewTitle()),
+                                
+                                createElement('button', {
+                                    onClick: handleNextMonth,
+                                    className: "btn btn-nav"
+                                }, ">")
+                            )
+                        ),
+
+                        createElement('div', { className: "action-buttons" },
+                            createElement('button', {
+                                onClick: () => setShowDashboard(!showDashboard),
+                                className: `dashboard-toggle ${showDashboard ? 'active' : ''}`
+                            }, "Dashboard"),
+                            
+                            createElement('button', {
+                                onClick: exportData,
+                                className: "btn btn-success"
+                            }, "Exportar"),
+                            
+                            createElement('label', { className: "btn btn-warning" },
+                                "Importar",
+                                createElement('input', {
+                                    type: "file",
+                                    accept: ".json",
+                                    onChange: importData
+                                })
+                            ),
+                            
+                            createElement('button', {
+                                onClick: () => setShowFilters(!showFilters),
+                                className: "btn btn-secondary"
+                            }, "Filtros"),
+                            
+                            currentView !== 'daily' && createElement('button', {
+                                onClick: () => handleAddEvent(),
+                                className: "btn btn-primary"
+                            }, "Nuevo Evento")
+                        )
+                    ),
+
+                    showExportNote && createElement('div', { className: "export-note" },
+                        createElement('strong', {}, "Nota: "),
+                        "El archivo se ha descargado en tu carpeta de descargas. Por favor, muévelo manualmente a Y:\\7-Compartido\\Calendario"
+                    ),
+
+                    showFilters && createElement('div', { className: "filters-panel" },
+                        createElement('div', { className: "filters-header" },
+                            createElement('h3', { className: "filters-title" }, "Filtros"),
+                            createElement('button', {
+                                onClick: clearAllFilters,
+                                className: "link-btn"
+                            }, "Limpiar filtros")
+                        ),
+                        
+                        createElement('div', { className: "filters-grid" },
+                            createElement('div', { className: "filter-section" },
+                                createElement('h4', {}, "Tipos de Evento"),
+                                createElement('div', { className: "filter-options" },
+                                    Object.entries(eventTypes).map(([key, type]) =>
+                                        createElement('label', { key: key, className: "filter-option" },
+                                            createElement('input', {
+                                                type: "checkbox",
+                                                checked: filters[key] !== undefined ? filters[key] : true,
+                                                onChange: (e) => setFilters(prev => ({ ...prev, [key]: e.target.checked }))
+                                            }),
+                                            createElement('div', { className: `color-indicator color-${key}` }),
+                                            createElement('span', {}, `${type.label} (${type.code})`)
+                                        )
+                                    )
+                                )
+                            ),
+
+                            createElement('div', { className: "filter-section" },
+                                createElement('h4', {}, "Usuarios"),
+                                createElement('div', { className: "filter-options" },
+                                    users.map(user =>
+                                        createElement('label', { key: user, className: "filter-option" },
+                                            createElement('input', {
+                                                type: "checkbox",
+                                                checked: filters.users.includes(user),
+                                                onChange: () => handleUserFilterToggle(user)
+                                            }),
+                                            createElement('span', { style: { fontSize: '0.875rem' } }, user)
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ),
+
+                    showDashboard && renderDashboard(),
+
+                    currentView === 'monthly' && renderMonthlyView(),
+                    currentView === 'yearly' && renderYearlyView(),
+                    currentView === 'daily' && renderDailyView()
+                ),
+
+                showModal && createElement('div', { className: "modal" },
+                    createElement('div', { className: "modal-content" },
+                        createElement('div', { className: "modal-header" },
+                            createElement('h3', { className: "modal-title" },
+                                (editingEvent ? 'Editar Evento' : 'Nuevo Evento')
+                            )
+                        ),
+                        
+                        createElement('div', { className: "modal-body" },
+                            createElement('div', { className: "form-group" },
+                                createElement('label', { className: "form-label" }, "Tipo *"),
+                                createElement('select', {
+                                    value: newEvent.type,
+                                    onChange: (e) => {
+                                        const newType = e.target.value;
+                                        setNewEvent(prev => {
+                                            const updated = { ...prev, type: newType };
+                                            if (newType === 'jornada') {
+                                                updated.title = updated.title || 'Jornada Extendida 18:30';
+                                                updated.startTime = updated.startTime || '18:30';
+                                                updated.endTime = updated.endTime || '19:00';
+                                            }
+                                            return updated;
+                                        });
+                                    },
+                                    className: "form-select"
+                                },
+                                    Object.entries(eventTypes).map(([key, type]) =>
+                                        createElement('option', { key: key, value: key }, type.label)
+                                    )
+                                )
+                            ),
+
+                            createElement('div', { className: "form-group" },
+                                createElement('label', { className: "form-label" }, "Usuario *"),
+                                createElement('select', {
+                                    value: newEvent.user,
+                                    onChange: (e) => setNewEvent(prev => ({ ...prev, user: e.target.value })),
+                                    className: "form-select"
+                                },
+                                    createElement('option', { value: "" }, "Seleccionar usuario"),
+                                    users.map(user =>
+                                        createElement('option', { key: user, value: user }, user)
+                                    )
+                                )
+                            ),
+
+                            createElement('div', { className: "form-grid" },
+                                createElement('div', { className: "form-group" },
+                                    createElement('label', { className: "form-label" }, "Fecha Inicio *"),
+                                    createElement('input', {
+                                        type: "date",
+                                        value: newEvent.startDate,
+                                        onChange: (e) => setNewEvent(prev => ({ ...prev, startDate: e.target.value })),
+                                        className: "form-input"
+                                    })
+                                ),
+
+                                createElement('div', { className: "form-group" },
+                                    createElement('label', { className: "form-label" }, "Fecha Fin *"),
+                                    createElement('input', {
+                                        type: "date",
+                                        value: newEvent.endDate,
+                                        onChange: (e) => setNewEvent(prev => ({ ...prev, endDate: e.target.value })),
+                                        className: "form-input"
+                                    })
+                                )
+                            ),
+
+                            (newEvent.type === 'visitas' || newEvent.type === 'reuniones' || newEvent.type === 'guardias' || newEvent.type === 'jornada' || newEvent.type === 'ofi' || newEvent.type === 'compras' || newEvent.type === 'manuales') && 
+                            createElement('div', { className: "form-grid" },
+                                createElement('div', { className: "form-group" },
+                                    createElement('label', { className: "form-label" }, "Hora Inicio"),
+                                    createElement('input', {
+                                        type: "time",
+                                        value: newEvent.startTime,
+                                        onChange: (e) => setNewEvent(prev => ({ ...prev, startTime: e.target.value })),
+                                        className: "form-input",
+                                        min: "08:00",
+                                        max: "20:00"
+                                    })
+                                ),
+
+                                createElement('div', { className: "form-group" },
+                                    createElement('label', { className: "form-label" }, "Hora Fin"),
+                                    createElement('input', {
+                                        type: "time",
+                                        value: newEvent.endTime,
+                                        onChange: (e) => setNewEvent(prev => ({ ...prev, endTime: e.target.value })),
+                                        className: "form-input",
+                                        min: "08:00",
+                                        max: "20:00"
+                                    })
+                                )
+                            ),
+                            
+                            createElement('div', { className: "form-group" },
+                                createElement('label', { className: "form-label" }, "Repetir evento"),
+                                createElement('select', {
+                                    value: newEvent.repetitionFrequency,
+                                    onChange: (e) => setNewEvent(prev => ({ ...prev, repetitionFrequency: e.target.value })),
+                                    className: "form-select"
+                                },
+                                    createElement('option', { value: "" }, "No repetir"),
+                                    createElement('option', { value: "daily" }, "Diariamente"),
+                                    createElement('option', { value: "weekly" }, "Semanalmente"),
+                                    createElement('option', { value: "everyXWeeks" }, "Cada X semanas") 
+                                )
+                            ),
+
+                            (newEvent.repetitionFrequency === 'weekly' || newEvent.repetitionFrequency === 'everyXWeeks') && createElement('div', { className: "form-group" }, 
+                                createElement('label', { className: "form-label" }, "Repetir los días"),
+                                createElement('div', { style: { display: 'flex', gap: '0.5rem', flexWrap: 'wrap' } },
+                                    weekDays.map((day, index) => 
+                                        createElement('label', { key: index, style: { display: 'flex', alignItems: 'center' } },
+                                            createElement('input', {
+                                                type: "checkbox",
+                                                checked: newEvent.repetitionWeekdays.includes(index),
+                                                onChange: () => handleRepetitionWeekdayToggle(index)
+                                            }),
+                                            createElement('span', { style: { marginLeft: '0.25rem' } }, day)
+                                        )
+                                    )
+                                )
+                            ),
+                            
+                            newEvent.repetitionFrequency === 'everyXWeeks' && createElement('div', { className: "form-group" }, 
+                                createElement('label', { className: "form-label" }, "Intervalo de repetición (en semanas)"),
+                                createElement('input', {
+                                    type: "number",
+                                    value: newEvent.repetitionInterval,
+                                    onChange: (e) => setNewEvent(prev => ({ ...prev, repetitionInterval: parseInt(e.target.value) || 1 })),
+                                    className: "form-input",
+                                    min: "1"
+                                })
+                            ),
+
+                            createElement('div', { className: "form-group" },
+                                createElement('label', { className: "form-label" }, "Descripción"),
+                                createElement('textarea', {
+                                    value: newEvent.description,
+                                    onChange: (e) => setNewEvent(prev => ({ ...prev, description: e.target.value })),
+                                    className: "form-textarea",
+                                    placeholder: "Descripción adicional (opcional)",
+                                    rows: "3"
+                                })
+                            ),
+
+                            createElement('div', { className: "modal-actions" },
+                                createElement('button', {
+                                    onClick: () => setShowModal(false),
+                                    className: "btn btn-secondary btn-full"
+                                }, "Cancelar"),
+                                
+                                createElement('button', {
+                                    onClick: handleSaveEvent,
+                                    className: "btn btn-primary btn-full"
+                                }, (editingEvent ? 'Actualizar' : 'Guardar'))
+                            )
+                        )
+                    )
+                )
+            );
+        };
+
+        ReactDOM.render(React.createElement(CAUCalendar), document.getElementById('root'));
+    </script>
+</body>
+</html>
