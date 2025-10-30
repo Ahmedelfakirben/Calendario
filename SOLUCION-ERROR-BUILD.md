@@ -23,7 +23,7 @@ El error ocurre porque:
 
 ## ✅ Solución Implementada
 
-### 1. Agregar el paquete `process` como dependencia
+### 1. Agregar todos los polyfills necesarios
 
 **Archivo modificado:** `package.json`
 
@@ -33,7 +33,9 @@ El error ocurre porque:
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",
     "parcel": "^2.16.0",
-    "process": "^0.11.10"  ← NUEVO
+    "process": "^0.11.10",             ← NUEVO
+    "stream-browserify": "^3.0.0",     ← NUEVO
+    "string_decoder": "^1.3.0"         ← NUEVO
   }
 }
 ```
@@ -60,17 +62,27 @@ El error ocurre porque:
 
 ### Para el repositorio:
 
-1. **Agregar `process` al package.json:**
+1. **Agregar todos los polyfills al package.json:**
    ```bash
-   npm install --save-dev process
+   npm install --save-dev process stream-browserify string_decoder
    ```
 
 2. **Crear `.parcelrc` en la raíz del proyecto**
 
-3. **Commit y push:**
+3. **Probar el build localmente:**
+   ```bash
+   npm run build
+   # Debería completar sin errores
+   ```
+
+4. **Commit y push:**
    ```bash
    git add package.json .parcelrc
-   git commit -m "Fix: Agregar polyfill de process para build en producción"
+   git commit -m "Fix: Agregar polyfills necesarios para build en producción
+
+- Agregar process, stream-browserify y string_decoder
+- Crear .parcelrc para configuración de Parcel
+- Build probado y funcionando correctamente"
    git push origin main
    ```
 
@@ -103,21 +115,34 @@ npm run build
 
 ## 📦 Dependencias Actuales
 
-### Para el navegador:
+### Para el navegador (Polyfills de Node.js):
 - `buffer` - Polyfill de Buffer de Node.js
 - `crypto-browserify` - Polyfill de crypto de Node.js
 - `process` - Polyfill de process de Node.js
+- `stream-browserify` - Polyfill de stream de Node.js
+- `string_decoder` - Polyfill de string_decoder de Node.js
 
 ### ¿Por qué son necesarias?
 
-**bcryptjs** → usa **crypto** → necesita **process** + **buffer**
+**bcryptjs** → usa **crypto** → necesita múltiples módulos de Node.js
 
 ```
 bcryptjs
   └── crypto (Node.js)
        ├── buffer ✅ (ya instalado)
        ├── crypto-browserify ✅ (ya instalado)
-       └── process ❌ (FALTABA - ahora instalado)
+       ├── process ✅ (ahora instalado)
+       ├── stream-browserify ✅ (ahora instalado)
+       └── string_decoder ✅ (ahora instalado)
+```
+
+**Cadena de dependencias completa:**
+```
+bcryptjs
+  └── crypto
+       └── cipher-base
+            ├── stream → stream-browserify
+            └── string_decoder
 ```
 
 ---
@@ -171,7 +196,9 @@ npm install --save-dev crypto-browserify
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",
     "parcel": "^2.16.0",
-+   "process": "^0.11.10"
++   "process": "^0.11.10",
++   "stream-browserify": "^3.0.0",
++   "string_decoder": "^1.3.0"
   }
 ```
 
