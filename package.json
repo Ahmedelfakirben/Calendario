@@ -1,0 +1,32 @@
+{
+  "name": "calendario",
+  "version": "1.0.0",
+  "description": "Esto es una prueba de calendario",
+  "scripts": {
+    "start": "parcel public/index.html",
+    "build": "parcel build public/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ahmedelfakirben/Calendario.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ahmedelfakirben/Calendario/issues"
+  },
+  "homepage": "https://github.com/Ahmedelfakirben/Calendario#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.77.0",
+    "bcryptjs": "^2.4.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
+    "parcel": "^2.16.0"
+  }
+}
