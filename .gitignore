@@ -17,6 +17,9 @@ build/
 # Archivo con credenciales reales (NO subir a Git)
 src/config.js
 
+# Archivo con credenciales de Supabase para compartir internamente
+CREDENCIALES-SUPABASE.txt
+
 # Variables de entorno
 .env
 .env.local
