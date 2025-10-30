@@ -1,34 +1,103 @@
-# Dependencies
+# ============================================
+# DEPENDENCIAS
+# ============================================
 node_modules/
 package-lock.json
 
-# Build outputs
+# ============================================
+# BUILD Y CACHE
+# ============================================
 dist/
 .parcel-cache/
-public/
+build/
 
-# Environment variables
+# ============================================
+# CONFIGURACIÓN Y CREDENCIALES
+# ============================================
+# Archivo con credenciales reales (NO subir a Git)
+src/config.js
+
+# Variables de entorno
 .env
 .env.local
 .env.production
+.env.development
 
+# ============================================
+# ARCHIVOS DE DESARROLLO Y TESTING
+# ============================================
+# Scripts de prueba y generación de passwords
+test-password.js
+generate-password-hash.js
+
+# Backups de JSON (datos de migración temporal)
+calendario-cau-v3-*.json
+*.backup.json
+
+# Scripts de migración ya ejecutados
+migrate-json-to-sql.js
+fix-password-hash.sql
+import-calendar-data.sql
+complete-migration.sql
+
+# ============================================
+# ARCHIVOS TEMPORALES Y DE SISTEMA
+# ============================================
 # Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+desktop.ini
 
-# IDE
+# ============================================
+# IDE Y EDITORES
+# ============================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+*.sublime-project
+*.sublime-workspace
 
-# Backup files
+# ============================================
+# BACKUPS Y TEMPORALES
+# ============================================
 *.bak
 *.backup
+*.tmp
+*.temp
+*~
+
+# ============================================
+# ARCHIVOS ESPECÍFICOS DEL PROYECTO
+# ============================================
+# HTML antiguo (versión vieja del calendario)
+calendario_cau.html
+
+# Settings locales de Claude
+.claude/settings.local.json
+
+# ============================================
+# ARCHIVOS QUE SÍ DEBEN ESTAR EN GIT
+# ============================================
+# IMPORTANTE: Estos archivos NO deben ignorarse:
+# - public/ (directorio completo)
+# - src/ (directorio completo EXCEPTO config.js)
+# - database-schema.sql
+# - database-migration.sql
+# - audit-log-schema.sql
+# - package.json
+# - *.md (documentación)
+# - *.bat y *.vbs (scripts de inicio)
