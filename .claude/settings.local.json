@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(npm run build:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(node generate-password-hash.js:*)",
+      "Bash(node migrate-json-to-sql.js:*)"
     ],
     "deny": [],
     "ask": []

@@ -14,18 +14,18 @@ CREATE TABLE IF NOT EXISTS users (
 -- Función para crear hash de contraseña (bcrypt)
 -- Nota: Ejecutar estos inserts después de configurar la aplicación
 -- El hash corresponde a la contraseña: Satec2016C@U
--- Hash generado con bcrypt: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+-- Hash generado con bcryptjs: $2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq
 
 -- Insertar usuarios iniciales con contraseña por defecto
 -- Contraseña para todos: Satec2016C@U
 INSERT INTO users (name, username, password_hash) VALUES
-  ('Ahmed El Fakir', 'ahmed.elfakir', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Luis Miguel Fernandez Nunez', 'luis.fernandez', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Borja Lopez Vila', 'borja.lopez', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Sergio Crespo Sabrido', 'sergio.crespo', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Armando Vergara Verd', 'armando.vergara', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Alvaro Oliver Morgado', 'alvaro.oliver', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Santiago Diaz Barbara', 'santiago.diaz', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy')
+  ('Ahmed El Fakir', 'ahmed.elfakir', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Luis Miguel Fernandez Nunez', 'luis.fernandez', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Borja Lopez Vila', 'borja.lopez', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Sergio Crespo Sabrido', 'sergio.crespo', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Armando Vergara Verd', 'armando.vergara', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Alvaro Oliver Morgado', 'alvaro.oliver', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Santiago Diaz Barbara', 'santiago.diaz', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq')
 ON CONFLICT (username) DO NOTHING;
 
 -- Tabla de eventos

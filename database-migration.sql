@@ -45,9 +45,9 @@ WHERE username IS NULL;
 -- ============================================
 
 -- Contraseña por defecto: Satec2016C@U
--- Hash bcrypt: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+-- Hash bcrypt (generado con bcryptjs): $2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq
 UPDATE users
-SET password_hash = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'
+SET password_hash = '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'
 WHERE password_hash IS NULL;
 
 -- ============================================
@@ -71,13 +71,13 @@ ALTER COLUMN password_hash SET NOT NULL;
 
 -- Insertar solo los usuarios que no existan ya
 INSERT INTO users (name, username, password_hash) VALUES
-  ('Ahmed El Fakir', 'ahmed.elfakir', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Luis Miguel Fernandez Nunez', 'luis.fernandez', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Borja Lopez Vila', 'borja.lopez', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Sergio Crespo Sabrido', 'sergio.crespo', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Armando Vergara Verd', 'armando.vergara', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Alvaro Oliver Morgado', 'alvaro.oliver', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
-  ('Santiago Diaz Barbara', 'santiago.diaz', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy')
+  ('Ahmed El Fakir', 'ahmed.elfakir', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Luis Miguel Fernandez Nunez', 'luis.fernandez', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Borja Lopez Vila', 'borja.lopez', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Sergio Crespo Sabrido', 'sergio.crespo', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Armando Vergara Verd', 'armando.vergara', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Alvaro Oliver Morgado', 'alvaro.oliver', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq'),
+  ('Santiago Diaz Barbara', 'santiago.diaz', '$2a$10$7U0.qmJttqrh.as4FHA2KOMK6TAm6DZu1qEgfMaXj/INoD60cF.Tq')
 ON CONFLICT (username) DO NOTHING;
 
 -- ============================================
